@@ -28,6 +28,10 @@ RSpec.configure do |c|
         on host, 'sed -i "s/keepcache=.*/keepcache=1/" /etc/yum.conf'
         # refresh check if cache needs refresh on next yum command
         on host, 'yum clean expire-cache'
+
+        # Foreman nightly contains katello-certs-tools
+        on host, puppet('resource', 'yumrepo', 'katello', 'descr="Katello nightly"', 'gpgcheck=false', 'enabled=true',
+                        'baseurl="https://yum.theforeman.org/releases/nightly/el7/\$basearch/"')
       end
     end
   end
