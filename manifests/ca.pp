@@ -71,12 +71,7 @@ class certs::ca (
   }
 
   if $deploy {
-    Ca[$default_ca_name] ~>
     pubkey { $ca_cert:
-      key_pair => $default_ca,
-    } ~>
-    pubkey { $ca_cert_stripped:
-      strip    => true,
       key_pair => $default_ca,
     } ~>
     file { $ca_cert:
@@ -86,7 +81,11 @@ class certs::ca (
       mode   => '0644',
     }
 
-    Ca[$server_ca_name] ~>
+    pubkey { $ca_cert_stripped:
+      strip    => true,
+      key_pair => $default_ca,
+    }
+
     pubkey { $katello_server_ca_cert:
       key_pair => $server_ca,
     } ~>
@@ -98,7 +97,6 @@ class certs::ca (
     }
 
     if $generate {
-      Ca[$default_ca_name] ~>
       privkey { $ca_key:
         key_pair      => $default_ca,
         unprotect     => true,
