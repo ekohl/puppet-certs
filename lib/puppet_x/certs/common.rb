@@ -47,8 +47,14 @@ module PuppetX
 
           validate do |value|
             ca_resource = resource.catalog.resource(value.to_s)
-            if ca_resource && ca_resource.class.to_s != 'Puppet::Type::Ca'
-              raise ArgumentError, "Expected Ca resource, got #{ca_resource.class} #{ca_resource.inspect}"
+            if ca_resource
+              # rspec-puppet presents Puppet::Resource instances
+              resource_type = ca_resource.is_a?(Puppet::Resource) ? ca_resource.resource_type.to_s : ca_resource.class.to_s
+              if resource_type != 'Puppet::Type::Ca'
+                raise ArgumentError, "Expected Ca resource, got #{ca_resource.class} #{ca_resource.inspect}"
+              end
+            else
+              raise ArgumentError, "Ca #{value} not found in catalog"
             end
           end
         end
@@ -84,8 +90,14 @@ module PuppetX
 
           validate do |value|
             param_resource = resource.catalog.resource(value.to_s)
-            if param_resource && !['Puppet::Type::Ca', 'Puppet::Type::Cert'].include?(param_resource.class.to_s)
-              raise ArgumentError, "Expected Ca or Cert resource, got #{param_resource.class} #{param_resource.inspect}"
+            if param_resource
+              # rspec-puppet presents Puppet::Resource instances
+              resource_type = param_resource.is_a?(Puppet::Resource) ? param_resource.resource_type.to_s : param_resource.class.to_s
+              unless ['Puppet::Type::Ca', 'Puppet::Type::Cert'].include?(resource_type)
+                raise ArgumentError, "Expected Ca or Cert resource, got #{resource_type} #{param_resource.inspect}"
+              end
+            else
+              raise ArgumentError, "Key_pair #{value} not found in catalog"
             end
           end
         end
